@@ -1,0 +1,66 @@
+---
+title: Platform Observability Suite
+date: 2025-10-05
+summary: Unified dashboards, logs, and alerts for internal services with actionable on-call runbooks.
+categories: [DevOps, SRE]
+tags: [Kubernetes, Prometheus, Grafana, Alerting]
+repo: https://github.com/your-handle/platform-observability-suite
+demo: ""
+draft: false
+---
+
+## Use Case
+
+Multiple internal services were running in Kubernetes, but diagnosis time was slow because logs, metrics, and alerts were fragmented across tools.
+
+The goal was to create one operational view that helped engineers detect incidents faster and resolve them with clear runbooks.
+
+## Context and Constraints
+
+- Services: 12 microservices across staging and production
+- Team: developers rotating on-call, not only platform engineers
+- Constraint: minimal operational overhead and clear ownership
+
+## Architecture
+
+- Prometheus for service and infrastructure metrics
+- Grafana dashboards grouped by customer-facing journey
+- Alert rules with severity tiers and response hints
+- Centralized logs with labels: service, namespace, pod, request_id
+
+```yaml
+groups:
+  - name: api-latency
+    rules:
+      - alert: HighP95Latency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 0.7
+        for: 10m
+        labels:
+          severity: warning
+```
+
+## Reliability Design
+
+- Alert noise reduction by grouping duplicate events
+- Alert routing by ownership tags
+- Runbook link attached to each actionable alert
+- Golden signals dashboard: latency, traffic, errors, saturation
+
+## Delivery and Operations
+
+- Dashboard JSON stored in repo and reviewed via pull requests
+- Alert rules validated in staging before production rollout
+- Weekly dashboard review with on-call feedback
+
+## Outcomes
+
+- Faster initial triage during incidents
+- Fewer false-positive pages after rule tuning
+- Better handoff quality across on-call rotations
+
+## Lessons Learned
+
+- Start with fewer, high-quality alerts and expand gradually
+- Alert text must include immediate next action
+- Correlation IDs are required for practical traceability
+

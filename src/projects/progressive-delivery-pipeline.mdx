@@ -1,0 +1,63 @@
+---
+title: Progressive Delivery Pipeline
+date: 2025-11-02
+summary: CI/CD pipeline with staged rollouts, health checks, and rollback guardrails for safer deploys.
+categories: [DevOps, CI/CD]
+tags: [GitLab CI, Helm, Canary, Rollback]
+repo: https://github.com/your-handle/progressive-delivery-pipeline
+demo: ""
+draft: false
+---
+
+## Use Case
+
+Production releases were risky because every deployment affected all users at once. The team needed a safer rollout model with measurable checks.
+
+I implemented a progressive delivery pipeline with canary stages and automated rollback criteria.
+
+## Context and Constraints
+
+- Frequent releases from multiple contributors
+- Need to catch regressions before full rollout
+- Minimize manual intervention during deployment windows
+
+## Pipeline Design
+
+- Build -> test -> image scan -> deploy canary -> verify -> full deploy
+- Helm release values by environment
+- Automated health and error-rate checks after canary promotion
+
+```yaml
+stages:
+  - build
+  - test
+  - security
+  - deploy_canary
+  - verify
+  - deploy_full
+```
+
+## Reliability and Safety Controls
+
+- Error budget guardrail blocks promotion on abnormal failure rate
+- Readiness and liveness checks required before traffic increase
+- Automatic rollback when p95 latency or 5xx rate exceeds thresholds
+
+## Operations and Observability
+
+- Deploy events pushed to team channel with commit and author context
+- Runbook for failed canary with clear rollback command path
+- Post-deploy checklist for dependency and migration validation
+
+## Outcomes
+
+- Safer release cadence with fewer emergency rollbacks
+- Faster confidence in promoting healthy changes
+- Clearer accountability during incident reviews
+
+## Lessons Learned
+
+- Canary windows should be long enough to capture realistic traffic
+- Rollback criteria must be explicit and version-controlled
+- Deployment notifications should include actionable links
+

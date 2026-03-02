@@ -1,5 +1,11 @@
 const modules = import.meta.glob('./**/*.mdx', { eager: true })
 
+function estimateReadingTime(text) {
+  const words = (text || '').trim().split(/\s+/).filter(Boolean).length
+  const minutes = Math.max(3, Math.round(words / 180))
+  return `${minutes} min read`
+}
+
 function toSlug(path) {
   return path
     .replace(/^\.\/|\.mdx$/g, '')
@@ -19,6 +25,7 @@ export const posts = Object.entries(modules)
       categories: fm.categories ?? [],
       keywords: fm.keywords ?? [],
       summary: fm.summary ?? '',
+      readingTime: fm.readingTime ?? estimateReadingTime(fm.summary ?? ''),
       draft: fm.draft ?? false,
       component: mod.default, 
     }
