@@ -1,13 +1,15 @@
 const profile = {
   name: 'Yassine Hadry',
-  headline: 'Software Engineer • DevOps/OCI',
-  blurb: 'Minimalist builder. I design calm, clean systems. Minimalist builder. I design calm, clean systems.',
+  headline: 'DevOps Engineer - Ideas Builder',
+  blurb: 'Keeping systems calm by day, shipping ideas by night.',
   social: {
-    github: 'https://github.com/your-handle',         
-    linkedin: 'https://www.linkedin.com/in/your-handle',
-    email: 'mailto:you@example.com',                    
+    github: 'https://github.com/hadryyassine',
+    linkedin: 'https://www.linkedin.com/in/yassine-hadry/',
+    x: 'https://x.com/YassineHadry1',
+    email: 'mailto:hadryyassine@gmail.com',
   },
-  cvUrl: '/cv.pdf', 
-  photo: '/profile.jpg'
+  cvUrl: '/cv.pdf',
+  calendlyUrl: 'https://calendly.com/hadryyassine/60min',
+  photo: '/photo.png'
 }
 export default profile

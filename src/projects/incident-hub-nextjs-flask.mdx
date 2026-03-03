@@ -1,0 +1,67 @@
+---
+title: Incident Hub (Next.js + Flask)
+date: 2025-12-12
+summary: Incident timeline and postmortem workflow for faster response and clearer recovery ownership.
+categories: [Full-Stack, SRE]
+tags: [Next.js, Flask, PostgreSQL, Docker]
+repo: https://github.com/your-handle/incident-hub
+demo: ""
+draft: false
+---
+
+## Use Case
+
+Incident communication was spread across chat threads and ad-hoc notes. Teams needed one place to track status, timeline, and follow-up actions.
+
+I built a lightweight internal incident hub with a Next.js frontend and Flask API.
+
+## Context and Constraints
+
+- Needed role-based access for incident commanders and responders
+- Required audit-friendly timeline edits
+- Must stay simple enough for quick adoption
+
+## Architecture
+
+- Next.js app for incident board and timeline UI
+- Flask API for incident lifecycle and action item endpoints
+- PostgreSQL for incident records and timeline events
+- Docker-based local development and deployment
+
+```yaml
+services:
+  web:
+    build: ./web
+    ports: ["3000:3000"]
+  api:
+    build: ./api
+    ports: ["5000:5000"]
+  db:
+    image: postgres:16
+```
+
+## Reliability Design
+
+- API request validation on write endpoints
+- Structured logs with incident_id correlation
+- Retry-safe write operations for timeline updates
+- Health endpoint checks for service status
+
+## CI/CD and Release Flow
+
+- Pull request checks: lint, unit tests, migration verification
+- Staging smoke tests before production promotion
+- Rollback strategy: previous image tags + DB migration guardrails
+
+## Outcomes
+
+- Faster incident handoff between responders
+- Consistent postmortem structure with action ownership
+- Less information loss during high-pressure incidents
+
+## Lessons Learned
+
+- Timeline tooling must prioritize speed over features
+- Incident templates reduce confusion during the first 10 minutes
+- Action items need deadlines and explicit owners to close the loop
+

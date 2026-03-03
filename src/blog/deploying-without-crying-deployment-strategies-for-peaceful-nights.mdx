@@ -1,0 +1,317 @@
+---
+title: "Deploying Without Crying: Deployment Strategies for Peaceful Nights"
+date: 2025-02-26
+categories: [DevOps]
+keywords: [deployment strategies]
+summary: A deep dive from my talk on deployment strategies, with slides, live demo code walkthroughs, and practical guidance for safer releases.
+readingTime: 18 min read
+---
+
+import SlideDeck from '../components/SlideDeck'
+
+I gave this talk because most deployment pain is not caused by code quality alone. It is caused by release design.
+
+Teams often improve test coverage, observability, and CI pipelines, but still suffer stressful release nights. The missing layer is deployment strategy: how traffic moves, how rollback works, how blast radius is controlled, and how quickly we can recover when reality disagrees with our assumptions.
+
+This post is a full written version of my talk: **Deploying Without Crying: Deployment Strategies for Peaceful Nights**.
+
+## Watch the talk
+
+<div className="not-prose my-6 overflow-hidden rounded-2xl border border-[#dce5ea] bg-white shadow-sm dark:border-[#2a3b46] dark:bg-[#10202a]">
+  <iframe
+    className="w-full"
+    width="100%"
+    height="560"
+    style={{ height: 'clamp(420px, 70vh, 760px)' }}
+    src="https://www.youtube.com/embed/AXqXPerHiok?start=1684"
+    title="Deploying Without Crying: Deployment Strategies for Peaceful Nights"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    allowFullScreen
+  />
+</div>
+
+- Talk video: [https://www.youtube.com/watch?v=AXqXPerHiok&t=1684s](https://www.youtube.com/watch?v=AXqXPerHiok&t=1684s)
+- Demo repository: [https://github.com/hadryyassine/Deploying-without-crying-demos](https://github.com/hadryyassine/Deploying-without-crying-demos)
+
+## Slides (interactive)
+
+Use the controls below to navigate the deck directly inside this post.
+
+<SlideDeck
+  pdfUrl="/blog/slides-blog-deployment-without-crying.pdf"
+  imageBasePath="/blog/slides-blog-deployment-without-crying"
+  totalPages={26}
+  startPage={1}
+  title="Deploying Without Crying - Slide Deck"
+/>
+
+## The real problem: deployments fail differently
+
+One pattern I keep seeing is this:
+
+- Build is green.
+- Unit tests are green.
+- Staging looks fine.
+- Production deployment still causes user pain.
+
+That happens because deployment strategies are about **risk distribution over time**. The same code can be low-risk with one strategy and high-risk with another.
+
+In my demos, I used the same simple app concept and changed only the deployment approach. The behavior of risk changed immediately.
+
+## 1) Big Bang deployment
+
+Big Bang means we stop the old version and replace it with the new one in a single move.
+
+```bash
+echo "🛑 Stopping Version 1..."
+docker stop myapp_v1
+docker rm myapp_v1
+
+echo "🚀 Deploying Version 2..."
+cp app_v2.py app.py
+docker build -t myapp:v2 .
+docker run -d -p 9090:5000 --name myapp_v2 myapp:v2
+```
+
+Why this is risky:
+
+- There is no overlap between old and new versions.
+- If v2 is unhealthy, users feel it immediately.
+- Rollback is manual and slower than traffic-level switch techniques.
+
+When it can still make sense:
+
+- Internal systems with low traffic and low criticality.
+- Very small services where downtime is acceptable.
+- Emergency security patches where time-to-fix matters more than graceful transition.
+
+Operational note from the demo: this approach is easiest to understand, but it gives you the smallest safety net.
+
+## 2) Rolling deployment
+
+Rolling deployment updates instances incrementally. Some instances stay on v1 while others move to v2.
+
+### How the demo models it
+
+The script starts two app containers behind NGINX, then updates one container at a time.
+
+```bash
+docker run -d --name rolling1 --network rolling-net myapp:v1
+docker run -d --name rolling2 --network rolling-net myapp:v1
+
+# ... later
+
+docker stop rolling1 && docker rm rolling1
+docker run -d --name rolling1 --network rolling-net myapp:v2
+```
+
+Load balancing is done through an upstream pool:
+
+```nginx
+upstream backend {
+  server rolling1:4040;
+  server rolling2:4040;
+}
+
+location / {
+  proxy_pass http://backend;
+}
+```
+
+Why this is better than Big Bang:
+
+- No full stop-the-world cutover.
+- Partial rollout gives early signal on new version behavior.
+- Lower immediate blast radius.
+
+New challenges it introduces:
+
+- Mixed-version behavior during rollout.
+- Backward compatibility pressure (DB schema, contracts, caches).
+- Harder debugging when requests land on different versions.
+
+My recommendation: rolling is a strong default for stateless services when you design for compatibility.
+
+## 3) Blue/Green deployment
+
+Blue/Green keeps two full environments. One is live (Blue), one is candidate (Green). Traffic switches only when Green is verified.
+
+### How the demo switches traffic
+
+In the script, NGINX config is regenerated to point to the active container:
+
+```bash
+cp nginx.conf.template nginx.conf
+sed -i '' "s/ACTIVE_CONTAINER/$active_container/g" nginx.conf
+
+docker stop nginx-proxy 2>/dev/null
+docker rm nginx-proxy 2>/dev/null
+
+docker run -d --name nginx-proxy \
+  --network bluegreen \
+  -p 80:80 \
+  -v $(pwd)/nginx.conf:/etc/nginx/nginx.conf:ro \
+  nginx:alpine
+```
+
+Template idea:
+
+```nginx
+upstream backend {
+  server ACTIVE_CONTAINER:4040;
+}
+```
+
+### Why teams love Blue/Green
+
+- Fast rollback: switch traffic back to Blue.
+- Strong isolation between current and candidate versions.
+- Cleaner verification path before exposure.
+
+### Rollback example from the demo
+
+```bash
+echo "🔄 Switching traffic back to Blue environment..."
+update_nginx_config "blue"
+
+echo "🛑 Stopping problematic Green environment..."
+docker stop green
+docker rm green
+```
+
+Trade-offs:
+
+- Higher resource cost (two environments).
+- Environment parity must be strict, otherwise confidence is false.
+- Stateful components still require migration strategy.
+
+## 4) Canary deployment
+
+Canary shifts a small percentage of live traffic to the new version, then gradually increases if metrics stay healthy.
+
+### Docker/NGINX style from the demo
+
+```bash
+update_traffic 100 0
+# ... test
+update_traffic 80 20
+# ... test
+update_traffic 50 50
+# ... test
+update_traffic 0 100
+```
+
+```nginx
+upstream backend {
+  server stable:4040 weight=80;
+  server canary:4040 weight=20;
+}
+```
+
+### Kubernetes style from the demo
+
+```yaml
+metadata:
+  name: canary-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/canary: "true"
+    nginx.ingress.kubernetes.io/canary-weight: "30"
+```
+
+Why Canary is powerful:
+
+- Progressive risk exposure.
+- Real production feedback before full rollout.
+- Better decision-making when combined with SLO-based gates.
+
+What must exist for Canary to work well:
+
+- Clear success/failure metrics.
+- Fast, trusted rollback path.
+- Monitoring segmented by version.
+
+Without those, canary becomes controlled guessing.
+
+## 5) Feature Toggle deployment
+
+Feature toggles decouple deployment from feature release. You can deploy code but keep features disabled until ready.
+
+From the demo app:
+
+```python
+FEATURE_FLAGS = {
+  'new_ui': False,
+  'dark_mode': False,
+  'new_button': False
+}
+
+@app.route('/toggle', methods=['POST'])
+def toggle():
+  flags = load_feature_flags()
+  for feature in flags.keys():
+    flags[feature] = request.form.get(feature) == 'on'
+  save_feature_flags(flags)
+```
+
+The deployment script mounts flag data into the container:
+
+```bash
+docker run -d --name feature-app \
+  -p 80:4040 \
+  -v $(pwd)/features.json:/app/features.json \
+  feature-app:latest
+```
+
+Why this matters:
+
+- Safer releases: deploy first, expose later.
+- Faster rollback for feature behavior (toggle off, no redeploy).
+- Better support for experiments and phased rollouts.
+
+Important discipline:
+
+- Flags need ownership and expiry.
+- Stale flags increase code complexity quickly.
+- Treat feature flag lifecycle as part of engineering hygiene.
+
+## Strategy selection guide
+
+If your service is simple and low-risk, rolling may be enough.
+If rollback speed is critical, Blue/Green is usually stronger.
+If risk must be minimized with live signals, choose Canary.
+If business timing must be decoupled from deployment timing, use Feature Toggles.
+
+In mature systems, the best answer is often a combination:
+
+- **Rolling** for normal releases
+- **Canary** for high-risk changes
+- **Feature Toggles** for controlled exposure
+- **Blue/Green** for critical cutovers requiring instant rollback
+
+## Practical release checklist
+
+Before deployment:
+
+- Define rollback trigger and owner.
+- Confirm compatibility assumptions (schema/contracts/cache).
+- Ensure dashboards and alerts are version-aware.
+
+During deployment:
+
+- Watch error rate, latency, saturation, and key business KPIs.
+- Advance rollout only on explicit success criteria.
+- Keep communication clear in incident/release channels.
+
+After deployment:
+
+- Validate user-critical flows.
+- Remove temporary guards when stable.
+- Capture learnings for the next release cycle.
+
+## Closing
+
+Peaceful deployment nights do not come from luck. They come from choosing a strategy that matches your risk profile, and from designing rollback before rollout.
+
+This talk and demo repo were built to make those trade-offs concrete and practical.
+
+If you want, I can publish a follow-up post with a complete **production-ready canary checklist** (metrics, alerts, promotion gates, and rollback automation).
