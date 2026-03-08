@@ -9,6 +9,9 @@
   --code-border: #262b33;
   --code-muted: #9aa3b2;
   --code-header-bg: #161b22;
+  --loader-bg: #e7f0f4;
+  --loader-fg: #27444d;
+  --loader-track: rgba(77, 111, 124, 0.2);
 }
 
 .dark {
@@ -16,6 +19,86 @@
   --code-border: #262b33;
   --code-muted: #9aa3b2;
   --code-header-bg: #161b22;
+  --loader-bg: #121b24;
+  --loader-fg: #c8d9e3;
+  --loader-track: rgba(156, 185, 201, 0.24);
+}
+
+.site-loader-screen {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  background: var(--loader-bg);
+}
+
+.site-loader-screen.is-dark {
+  background: #121b24;
+}
+
+.site-loader-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.site-loader-logo {
+  width: auto;
+  height: 2.2rem;
+  animation: loader-pop 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.site-loader-bar {
+  position: relative;
+  width: 6.5rem;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--loader-track);
+  overflow: hidden;
+}
+
+.site-loader-screen.is-dark .site-loader-bar {
+  background: rgba(156, 185, 201, 0.24);
+}
+
+.site-loader-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--loader-fg);
+  transform-origin: left center;
+  animation: loader-progress 900ms cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+.site-loader-screen.is-dark .site-loader-bar::after {
+  background: #c8d9e3;
+}
+
+@keyframes loader-pop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes loader-progress {
+  0% {
+    transform: scaleX(0.1);
+    opacity: 0.7;
+  }
+  60% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(0.12);
+    opacity: 0.7;
+  }
 }
 
 /* Notion-like code blocks powered by rehype-pretty-code + Shiki */
@@ -140,6 +223,7 @@
 }
 
 .home-float-card {
+  will-change: transform, opacity;
   border: 1px solid #d9d4c7;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.58) 0%, rgba(255, 255, 255, 0.16) 100%),
@@ -193,6 +277,7 @@
 }
 
 .home-float-card-dark {
+  will-change: transform, opacity;
   border: 1px solid #2a3640;
   background:
     linear-gradient(180deg, rgba(145, 179, 199, 0.08) 0%, rgba(145, 179, 199, 0.02) 100%),

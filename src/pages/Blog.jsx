@@ -28,17 +28,17 @@ const listVariants = {
   show: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.08,
+      staggerChildren: 0.06,
     },
   },
 }
 
 const cardVariants = {
-  hidden: { opacity: 0, y: 8 },
+  hidden: { opacity: 0, y: 6 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.28, ease: 'easeOut' },
+    transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] },
   },
 }
 
@@ -205,10 +205,10 @@ export default function Blog() {
                 <Motion.li
                   key={p.slug}
                   variants={cardVariants}
-                  className={`rounded-2xl p-5 transition-all duration-200 hover:-translate-y-[2px] ${
+                  className={`rounded-2xl p-5 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 ${
                     isDark
-                      ? 'bg-[#15212a]/88 shadow-[0_8px_26px_rgba(0,0,0,0.24)] hover:shadow-[0_14px_34px_rgba(0,0,0,0.34)]'
-                      : 'bg-[#f5f8fa] shadow-[0_12px_32px_rgba(53,80,90,0.14)] hover:shadow-[0_18px_40px_rgba(53,80,90,0.22)]'
+                      ? 'bg-[#15212a]/88 shadow-[0_8px_24px_rgba(0,0,0,0.2)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.28)]'
+                      : 'bg-[#f5f8fa] shadow-[0_10px_26px_rgba(53,80,90,0.12)] hover:shadow-[0_14px_30px_rgba(53,80,90,0.17)]'
                   }`}
                 >
                   <div

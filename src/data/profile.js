@@ -10,6 +10,6 @@ const profile = {
   },
   cvUrl: '/cv.pdf',
   calendlyUrl: 'https://calendly.com/hadryyassine/60min',
-  photo: '/photo.png'
+  photo: '/profile.jpg'
 }
 export default profile
