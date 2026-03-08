@@ -27,7 +27,11 @@ function InfoDialog({ label, title, triggerClassName, children }) {
   return (
     <Dialog.Root>
       <Dialog.Trigger asChild>
-        <Motion.button whileHover={{ scale: 1.02 }} className={triggerClassName}>
+        <Motion.button
+          whileHover={{ y: -1 }}
+          transition={{ type: 'spring', stiffness: 360, damping: 26, mass: 0.45 }}
+          className={triggerClassName}
+        >
           {label}
         </Motion.button>
       </Dialog.Trigger>

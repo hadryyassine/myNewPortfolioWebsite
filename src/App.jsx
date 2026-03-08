@@ -1,8 +1,10 @@
 // src/App.jsx
 import { BrowserRouter, Routes, Route, Outlet, useLocation } from 'react-router-dom'
-import { Suspense, lazy } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
+import { AnimatePresence, motion as Motion, useReducedMotion } from 'framer-motion'
 import useDarkMode from './hooks/useDarkMode'
 import Header from './components/Header'
+import SiteLoader from './components/SiteLoader'
 import Home from './pages/Home'
 import Blog from './pages/Blog'
 import UnderConstruction from './pages/UnderConstruction'
@@ -14,6 +16,7 @@ const ProjectPost = lazy(() => import('./pages/ProjectPost'))
 function Layout() {
   const [isDark, setIsDark] = useDarkMode(false)
   const location = useLocation()
+  const shouldReduceMotion = useReducedMotion()
   const isHome = location.pathname === '/'
   const isBlogList = location.pathname === '/blog'
   const isBlogDetail = location.pathname.startsWith('/blog/') && location.pathname !== '/blog'
@@ -63,7 +66,21 @@ function Layout() {
       <main
         className={`${isHome ? 'px-2 sm:px-3 md:px-4' : 'max-w-5xl mx-auto px-4'} ${isHome ? 'relative z-[1]' : ''}`}
       >
-        <Outlet context={{ isDark, onToggleTheme: toggleTheme }} />
+        <AnimatePresence mode="wait" initial={false}>
+          <Motion.div
+            key={location.pathname}
+            initial={shouldReduceMotion ? false : { opacity: 0, y: 8 }}
+            animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, y: 0 }}
+            exit={shouldReduceMotion ? { opacity: 1 } : { opacity: 0, y: -4 }}
+            transition={
+              shouldReduceMotion
+                ? { duration: 0 }
+                : { duration: 0.3, ease: [0.22, 1, 0.36, 1] }
+            }
+          >
+            <Outlet context={{ isDark, onToggleTheme: toggleTheme }} />
+          </Motion.div>
+        </AnimatePresence>
       </main>
 
       <footer
@@ -83,9 +100,41 @@ function Layout() {
 
 
 export default function App() {
+  const [isBooting, setIsBooting] = useState(true)
+
+  useEffect(() => {
+    const startedAt = Date.now()
+    let timeoutId
+
+    const primeImages = ['/profile.jpg', '/logo-yh.png', '/logo-yh-white.png']
+    primeImages.forEach((src) => {
+      const img = new Image()
+      img.src = src
+    })
+
+    const finishBoot = () => {
+      const elapsed = Date.now() - startedAt
+      const remaining = Math.max(0, 700 - elapsed)
+      timeoutId = window.setTimeout(() => setIsBooting(false), remaining)
+    }
+
+    if (document.readyState === 'complete') {
+      finishBoot()
+    } else {
+      window.addEventListener('load', finishBoot, { once: true })
+    }
+
+    return () => {
+      window.removeEventListener('load', finishBoot)
+      if (timeoutId) window.clearTimeout(timeoutId)
+    }
+  }, [])
+
+  if (isBooting) return <SiteLoader />
+
   return (
     <BrowserRouter>
-      <Suspense fallback={<div className="p-6">Loading…</div>}>
+      <Suspense fallback={<SiteLoader />}>
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<Home />} />
