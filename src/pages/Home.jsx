@@ -1,13 +1,16 @@
+import { useEffect } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { motion as Motion } from 'framer-motion'
 import { Github, Linkedin, Mail, Moon, Sun, X } from 'lucide-react'
 import { Link, useOutletContext } from 'react-router-dom'
 import profileData from '../data/profile'
 import { education, experience, skillCategories } from '../data/experience'
+import SkillCategoriesPanel from '../components/SkillCategoriesPanel'
 import Timeline from '../components/Timeline'
 import SEO from '../components/SEO'
 import site from '../data/site'
 import useViewportSpace from '../hooks/useViewportSpace'
+import { preloadImage, runWhenIdle } from '../utils/performance'
 
 function BrandXIcon({ className = '' }) {
   return (
@@ -54,50 +57,20 @@ function InfoDialog({ label, title, triggerClassName, children }) {
   )
 }
 
-function SkillsDialogContent({ isDark }) {
-  const categoryClass = isDark
-    ? 'text-[11px] font-semibold uppercase tracking-[0.16em] text-[#9eb2be]'
-    : 'text-[11px] font-semibold uppercase tracking-[0.16em] text-[#5f7882]'
-
-  const chipClass = isDark
-    ? 'inline-flex items-center gap-2 rounded-md border border-[#2e3d47] bg-[#17242d] px-2.5 py-1.5 text-xs text-[#cfdbe3]'
-    : 'inline-flex items-center gap-2 rounded-md border border-[#d7e1e6] bg-[#f6f9fb] px-2.5 py-1.5 text-xs text-[#324953]'
-
-  const logoClass = isDark
-    ? 'h-3.5 w-3.5 opacity-90 grayscale invert'
-    : 'h-3.5 w-3.5 opacity-80 grayscale'
-
-  return (
-    <div className="space-y-4">
-      {skillCategories.map((group) => (
-        <section key={group.category}>
-          <h3 className={categoryClass}>{group.category}</h3>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {group.skills.map((skill) => (
-              <span key={skill.name} className={chipClass}>
-                <img
-                  src={skill.logo}
-                  alt=""
-                  aria-hidden="true"
-                  loading="lazy"
-                  decoding="async"
-                  className={logoClass}
-                />
-                <span>{skill.name}</span>
-              </span>
-            ))}
-          </div>
-        </section>
-      ))}
-    </div>
-  )
-}
-
 export default function Home() {
   const space = useViewportSpace()
   const outletContext = useOutletContext() || {}
   const isDark = outletContext.isDark || false
   const onToggleTheme = outletContext.onToggleTheme || (() => {})
+
+  useEffect(() => {
+    const skillLogos = skillCategories.flatMap((group) => group.skills.map((skill) => skill.logo))
+    const cancelIdleWarmup = runWhenIdle(() => {
+      skillLogos.forEach(preloadImage)
+    })
+
+    return cancelIdleWarmup
+  }, [])
 
   const lightPrimaryButton =
     'px-4 py-2 rounded-full border border-[#4f7a82]/35 bg-[#6f9ca2] text-white hover:bg-[#5f8c93] transition-colors'
@@ -247,7 +220,7 @@ export default function Home() {
                   title="Skills"
                   triggerClassName="px-4 py-2 rounded-full border border-[#2f3b44] bg-[#1b242b] text-[#cad6de] hover:bg-[#232f38] transition-colors"
                 >
-                  <SkillsDialogContent isDark={isDark} />
+                  <SkillCategoriesPanel isDark={isDark} />
                 </InfoDialog>
               </div>
 
@@ -411,7 +384,7 @@ export default function Home() {
               </InfoDialog>
 
               <InfoDialog label="My Skills" title="Skills" triggerClassName={lightSecondaryButton}>
-                <SkillsDialogContent isDark={isDark} />
+                <SkillCategoriesPanel isDark={isDark} />
               </InfoDialog>
             </div>
 

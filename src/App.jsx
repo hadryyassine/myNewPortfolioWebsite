@@ -9,9 +9,18 @@ import Home from './pages/Home'
 import Blog from './pages/Blog'
 import UnderConstruction from './pages/UnderConstruction'
 import NotFound from './pages/NotFound'
+import { getRemainingBootDelay, preloadImage, runWhenIdle } from './utils/performance'
 
 const Post = lazy(() => import('./pages/Post'))
 const ProjectPost = lazy(() => import('./pages/ProjectPost'))
+
+function RouteLoader() {
+  return (
+    <div className="py-12">
+      <SiteLoader compact />
+    </div>
+  )
+}
 
 function Layout() {
   const [isDark, setIsDark] = useDarkMode(false)
@@ -105,27 +114,25 @@ export default function App() {
   useEffect(() => {
     const startedAt = Date.now()
     let timeoutId
+    let cancelIdleWarmup = () => {}
 
     const primeImages = ['/profile.jpg', '/logo-yh.png', '/logo-yh-white.png']
-    primeImages.forEach((src) => {
-      const img = new Image()
-      img.src = src
+    cancelIdleWarmup = runWhenIdle(() => {
+      primeImages.forEach(preloadImage)
     })
 
     const finishBoot = () => {
-      const elapsed = Date.now() - startedAt
-      const remaining = Math.max(0, 700 - elapsed)
+      const remaining = getRemainingBootDelay(startedAt)
       timeoutId = window.setTimeout(() => setIsBooting(false), remaining)
     }
 
-    if (document.readyState === 'complete') {
-      finishBoot()
-    } else {
-      window.addEventListener('load', finishBoot, { once: true })
-    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', finishBoot, { once: true })
+    } else finishBoot()
 
     return () => {
-      window.removeEventListener('load', finishBoot)
+      document.removeEventListener('DOMContentLoaded', finishBoot)
+      cancelIdleWarmup()
       if (timeoutId) window.clearTimeout(timeoutId)
     }
   }, [])
@@ -134,7 +141,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
-      <Suspense fallback={<SiteLoader />}>
+      <Suspense fallback={<RouteLoader />}>
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<Home />} />

@@ -8,6 +8,7 @@ readingTime: 18 min read
 ---
 
 import SlideDeck from '../components/SlideDeck'
+import LiteYouTubeEmbed from '../components/LiteYouTubeEmbed'
 
 I gave this talk because most deployment pain is not caused by code quality alone. It is caused by release design.
 
@@ -17,18 +18,11 @@ This post is a full written version of my talk: **Deploying Without Crying: Depl
 
 ## Watch the talk
 
-<div className="not-prose my-6 overflow-hidden rounded-2xl border border-[#dce5ea] bg-white shadow-sm dark:border-[#2a3b46] dark:bg-[#10202a]">
-  <iframe
-    className="w-full"
-    width="100%"
-    height="560"
-    style={{ height: 'clamp(420px, 70vh, 760px)' }}
-    src="https://www.youtube.com/embed/AXqXPerHiok?start=1684"
-    title="Deploying Without Crying: Deployment Strategies for Peaceful Nights"
-    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-    allowFullScreen
-  />
-</div>
+<LiteYouTubeEmbed
+  videoId="AXqXPerHiok"
+  start={1684}
+  title="Deploying Without Crying: Deployment Strategies for Peaceful Nights"
+/>
 
 - Talk video: [https://www.youtube.com/watch?v=AXqXPerHiok&t=1684s](https://www.youtube.com/watch?v=AXqXPerHiok&t=1684s)
 - Demo repository: [https://github.com/hadryyassine/Deploying-without-crying-demos](https://github.com/hadryyassine/Deploying-without-crying-demos)
@@ -40,6 +34,7 @@ Use the controls below to navigate the deck directly inside this post.
 <SlideDeck
   pdfUrl="/blog/slides-blog-deployment-without-crying.pdf"
   imageBasePath="/blog/slides-blog-deployment-without-crying"
+  imageExtension={"webp"}
   totalPages={26}
   startPage={1}
   title="Deploying Without Crying - Slide Deck"

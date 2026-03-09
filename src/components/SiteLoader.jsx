@@ -1,10 +1,10 @@
-export default function SiteLoader() {
+export default function SiteLoader({ compact = false }) {
   const isDark =
     typeof window !== 'undefined' && window.localStorage.getItem('theme') === 'dark'
 
   return (
     <div
-      className={`site-loader-screen${isDark ? ' is-dark' : ''}`}
+      className={`${compact ? 'site-loader-inline' : 'site-loader-screen'}${isDark ? ' is-dark' : ''}`}
       role="status"
       aria-live="polite"
       aria-label="Loading website"

@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { motion as Motion } from 'framer-motion'
+import { motion as Motion, useReducedMotion } from 'framer-motion'
 import { CornerUpLeft } from 'lucide-react'
 import { Link, useOutletContext, useSearchParams } from 'react-router-dom'
 import { allCategories, posts } from '../blog/posts'
@@ -23,28 +23,10 @@ function formatBlogDate(dateInput) {
     .toUpperCase()
 }
 
-const listVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.06,
-    },
-  },
-}
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 6 },
-  show: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.32, ease: [0.22, 1, 0.36, 1] },
-  },
-}
-
 export default function Blog() {
   const outletContext = useOutletContext() || {}
   const isDark = outletContext.isDark || false
+  const shouldReduceMotion = useReducedMotion()
   const [params, setParams] = useSearchParams()
   const q = params.get('q') || ''
   const selected = params.getAll('cat')
@@ -69,6 +51,29 @@ export default function Blog() {
       return matchesQuery && matchesCats
     })
   }, [q, selected])
+
+  const listAnimation = shouldReduceMotion
+    ? { hidden: {}, show: {} }
+    : {
+        hidden: {},
+        show: {
+          transition: {
+            staggerChildren: 0.04,
+            delayChildren: 0.03,
+          },
+        },
+      }
+
+  const cardAnimation = shouldReduceMotion
+    ? { hidden: { opacity: 1 }, show: { opacity: 1 } }
+    : {
+        hidden: { opacity: 0, y: 10 },
+        show: {
+          opacity: 1,
+          y: 0,
+          transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] },
+        },
+      }
 
   return (
     <>
@@ -196,16 +201,19 @@ export default function Blog() {
 
           {filtered.length > 0 ? (
             <Motion.ul
-              variants={listVariants}
-              initial="hidden"
+              layout
+              variants={listAnimation}
+              initial={shouldReduceMotion ? false : 'hidden'}
               animate="show"
               className="mt-6 grid gap-4"
             >
               {filtered.map((p) => (
                 <Motion.li
                   key={p.slug}
-                  variants={cardVariants}
-                  className={`rounded-2xl p-5 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-0.5 ${
+                  layout="position"
+                  variants={cardAnimation}
+                  whileHover={shouldReduceMotion ? undefined : { y: -3 }}
+                  className={`transform-gpu will-change-transform rounded-2xl p-5 transition-[box-shadow] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] ${
                     isDark
                       ? 'bg-[#15212a]/88 shadow-[0_8px_24px_rgba(0,0,0,0.2)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.28)]'
                       : 'bg-[#f5f8fa] shadow-[0_10px_26px_rgba(53,80,90,0.12)] hover:shadow-[0_14px_30px_rgba(53,80,90,0.17)]'

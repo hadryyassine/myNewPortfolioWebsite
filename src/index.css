@@ -31,6 +31,13 @@
   background: var(--loader-bg);
 }
 
+.site-loader-inline {
+  display: grid;
+  place-items: center;
+  padding: 1.5rem 0;
+  background: transparent;
+}
+
 .site-loader-screen.is-dark {
   background: #121b24;
 }

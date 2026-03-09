@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import MDXProvider from '../components/MDXProvider'
 import { posts } from '../blog/posts'
@@ -8,18 +8,22 @@ import useViewportSpace from '../hooks/useViewportSpace'
 import { Link } from 'react-router-dom'
 import { CornerUpLeft } from 'lucide-react'
 
-const modules = import.meta.glob('../blog/**/*.mdx')
+function PostBodyPlaceholder() {
+  return (
+    <div className="space-y-4" aria-hidden="true">
+      <div className="h-6 w-3/4 rounded-full bg-[#e6edf1] dark:bg-[#22323b]" />
+      <div className="h-4 w-full rounded-full bg-[#edf3f6] dark:bg-[#1c2a33]" />
+      <div className="h-4 w-11/12 rounded-full bg-[#edf3f6] dark:bg-[#1c2a33]" />
+      <div className="h-4 w-5/6 rounded-full bg-[#edf3f6] dark:bg-[#1c2a33]" />
+    </div>
+  )
+}
 
 export default function Post() {
   const { slug } = useParams()
   const meta = useMemo(() => posts.find((p) => p.slug === slug), [slug])
-  const [MDX, setMDX] = useState(null)
   const space = useViewportSpace()
-
-  useEffect(() => {
-    const key = Object.keys(modules).find((k) => k.includes(`${slug}.mdx`))
-    if (key) modules[key]().then((m) => setMDX(() => m.default))
-  }, [slug])
+  const MDX = meta?.component || null
 
   if (!meta) {
     return (
@@ -110,8 +114,7 @@ export default function Post() {
                 ))}
               </div>
             </header>
-
-            <MDXProvider>{MDX ? <MDX /> : <div>Loading…</div>}</MDXProvider>
+            <MDXProvider>{MDX ? <MDX /> : <PostBodyPlaceholder />}</MDXProvider>
           </article>
         </div>
       </section>
