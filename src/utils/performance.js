@@ -1,4 +1,4 @@
-export const BOOT_MINIMUM_MS = 220
+export const BOOT_MINIMUM_MS = 0
 
 export function getRemainingBootDelay(startedAt, now = Date.now(), minimum = BOOT_MINIMUM_MS) {
   return Math.max(0, minimum - (now - startedAt))
