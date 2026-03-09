@@ -12,6 +12,47 @@ import site from '../data/site'
 import useViewportSpace from '../hooks/useViewportSpace'
 import { preloadImage, runWhenIdle } from '../utils/performance'
 
+const homeTheme = {
+  light: {
+    card: 'home-float-card',
+    logo: '/logo-yh.png',
+    navLink: 'text-[#2f4952] hover:text-[#1f3b45]',
+    themeBtn: 'h-8 w-8 text-[#355766] hover:text-[#1f3b45] flex items-center justify-center',
+    themeBtnLabel: 'Switch to dark mode',
+    themeBtnTitle: 'Dark mode',
+    ThemeIcon: Moon,
+    avatarBorder: 'border-[#f4f6f3] shadow-[0_8px_28px_rgba(36,58,67,0.16)]',
+    heading: 'text-[#1f2f35]',
+    subheading: 'text-[#496169]',
+    blurb: 'text-[#4b5e66]',
+    primaryBtn:
+      'px-4 py-2 rounded-full border border-[#4f7a82]/35 bg-[#6f9ca2] text-white hover:bg-[#5f8c93] transition-colors',
+    secondaryBtn:
+      'px-4 py-2 rounded-full border border-[#d7d9d6] bg-[#f1f2ee] text-[#314148] hover:bg-[#e9ece7] transition-colors',
+    socialGroup: 'text-[#546a72]',
+    socialHover: 'h-9 w-9 hover:text-[#314d59] flex items-center justify-center',
+  },
+  dark: {
+    card: 'home-float-card-dark',
+    logo: '/logo-yh-white.png',
+    navLink: 'text-[#b8c6d1] hover:text-[#e6eef5]',
+    themeBtn: 'h-8 w-8 text-[#b7c8d4] hover:text-[#f6fafd] flex items-center justify-center',
+    themeBtnLabel: 'Switch to light mode',
+    themeBtnTitle: 'Light mode',
+    ThemeIcon: Sun,
+    avatarBorder: 'border-[#202b33] shadow-[0_10px_32px_rgba(0,0,0,0.42)]',
+    heading: 'text-[#eef4f8]',
+    subheading: 'text-[#a9bac5]',
+    blurb: 'text-[#9fb0bc]',
+    primaryBtn:
+      'px-4 py-2 rounded-full border border-[#5f8190]/40 bg-[#446b77] text-[#ecf4f7] hover:bg-[#507d8b] transition-colors',
+    secondaryBtn:
+      'px-4 py-2 rounded-full border border-[#2f3b44] bg-[#1b242b] text-[#cad6de] hover:bg-[#232f38] transition-colors',
+    socialGroup: 'text-[#9fb0bc]',
+    socialHover: 'h-9 w-9 hover:text-[#eff6fb] flex items-center justify-center',
+  },
+}
+
 function BrandXIcon({ className = '' }) {
   return (
     <svg
@@ -72,10 +113,7 @@ export default function Home() {
     return cancelIdleWarmup
   }, [])
 
-  const lightPrimaryButton =
-    'px-4 py-2 rounded-full border border-[#4f7a82]/35 bg-[#6f9ca2] text-white hover:bg-[#5f8c93] transition-colors'
-  const lightSecondaryButton =
-    'px-4 py-2 rounded-full border border-[#d7d9d6] bg-[#f1f2ee] text-[#314148] hover:bg-[#e9ece7] transition-colors'
+  const t = isDark ? homeTheme.dark : homeTheme.light
   const homeUrl = `${site.baseUrl}/`
   const homeKeywords = [
     'Yassine Hadry',
@@ -105,176 +143,6 @@ export default function Home() {
     },
   ]
 
-  if (isDark) {
-    return (
-      <>
-        <SEO
-          title=""
-          description={site.description}
-          url={homeUrl}
-          keywords={homeKeywords}
-          jsonLd={homeJsonLd}
-        />
-
-        <section
-          style={space ? { minHeight: `${space}px` } : undefined}
-          className="relative flex items-center justify-center"
-        >
-          <Motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.35 }}
-            className="home-float-card-dark relative mx-auto w-full max-w-5xl rounded-[30px] p-4 sm:p-8 md:p-10"
-          >
-            <div className="flex flex-wrap items-center gap-3">
-              <Link to="/" aria-label="Home" className="inline-flex h-10 px-1 items-center justify-center">
-                <img
-                  src="/logo-yh-white.png"
-                  alt="Yassine Hadry"
-                  width={36}
-                  height={31}
-                  loading="eager"
-                  decoding="async"
-                  className="h-6 sm:h-7 w-auto object-contain"
-                />
-              </Link>
-
-              <nav className="ml-auto flex flex-wrap items-center justify-end gap-3 text-[13px] sm:text-sm">
-                <Link to="/resources" className="text-[#b8c6d1] hover:text-[#e6eef5]">
-                  Resources
-                </Link>
-                <button
-                  onClick={onToggleTheme}
-                  className="h-8 w-8 text-[#b7c8d4] hover:text-[#f6fafd] flex items-center justify-center"
-                  aria-label="Switch to light mode"
-                  title="Light mode"
-                >
-                  <Sun className="h-4 w-4" />
-                </button>
-              </nav>
-            </div>
-
-            <div className="mt-8 sm:mt-10 flex flex-col items-center text-center">
-              <img
-                src={profileData.photo}
-                alt={profileData.name}
-                width={152}
-                height={152}
-                loading="eager"
-                fetchPriority="high"
-                decoding="async"
-                className="h-32 w-32 sm:h-36 sm:w-36 rounded-full object-cover border-4 border-[#202b33] shadow-[0_10px_32px_rgba(0,0,0,0.42)]"
-              />
-
-              <h1 className="mt-4 text-3xl sm:text-4xl font-semibold tracking-tight text-[#eef4f8]">
-                {profileData.name}
-              </h1>
-              <p className="mt-1 text-base sm:text-lg text-[#a9bac5]">{profileData.headline}</p>
-
-              <p className="mt-4 mx-auto max-w-2xl leading-relaxed text-[#9fb0bc]">
-                {profileData.blurb}
-              </p>
-
-              <div className="mt-6 flex flex-wrap justify-center gap-3">
-                <a
-                  href={profileData.calendlyUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-4 py-2 rounded-full border border-[#5f8190]/40 bg-[#446b77] text-[#ecf4f7] hover:bg-[#507d8b] transition-colors"
-                >
-                  Let&apos;s Talk
-                </a>
-
-                <Link
-                  to="/blog"
-                  className="px-4 py-2 rounded-full border border-[#2f3b44] bg-[#1b242b] text-[#cad6de] hover:bg-[#232f38] transition-colors"
-                >
-                  Blog
-                </Link>
-
-                <Link
-                  to="/projects"
-                  className="px-4 py-2 rounded-full border border-[#2f3b44] bg-[#1b242b] text-[#cad6de] hover:bg-[#232f38] transition-colors"
-                >
-                  Projects
-                </Link>
-
-                <InfoDialog
-                  label="My Career"
-                  title="Career"
-                  triggerClassName="px-4 py-2 rounded-full border border-[#2f3b44] bg-[#1b242b] text-[#cad6de] hover:bg-[#232f38] transition-colors"
-                >
-                  <Timeline items={experience} />
-                </InfoDialog>
-
-                <InfoDialog
-                  label="My Education"
-                  title="Education"
-                  triggerClassName="px-4 py-2 rounded-full border border-[#2f3b44] bg-[#1b242b] text-[#cad6de] hover:bg-[#232f38] transition-colors"
-                >
-                  <Timeline items={education} />
-                </InfoDialog>
-
-                <InfoDialog
-                  label="My Skills"
-                  title="Skills"
-                  triggerClassName="px-4 py-2 rounded-full border border-[#2f3b44] bg-[#1b242b] text-[#cad6de] hover:bg-[#232f38] transition-colors"
-                >
-                  <SkillCategoriesPanel isDark={isDark} />
-                </InfoDialog>
-              </div>
-
-              <div className="mt-6 flex items-center justify-center gap-4 text-[#9fb0bc]">
-                <a
-                  href={profileData.social.github}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="GitHub"
-                  title="GitHub"
-                  className="h-9 w-9 hover:text-[#eff6fb] flex items-center justify-center"
-                >
-                  <Github className="w-4 h-4" />
-                  <span className="sr-only">GitHub</span>
-                </a>
-                <a
-                  href={profileData.social.linkedin}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="LinkedIn"
-                  title="LinkedIn"
-                  className="h-9 w-9 hover:text-[#eff6fb] flex items-center justify-center"
-                >
-                  <Linkedin className="w-4 h-4" />
-                  <span className="sr-only">LinkedIn</span>
-                </a>
-                <a
-                  href={profileData.social.x}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="X"
-                  title="X"
-                  className="h-9 w-9 hover:text-[#eff6fb] flex items-center justify-center"
-                >
-                  <BrandXIcon className="w-4 h-4" />
-                  <span className="sr-only">X</span>
-                </a>
-                <a
-                  href={profileData.social.email}
-                  aria-label="Email"
-                  title="Email"
-                  className="h-9 w-9 hover:text-[#eff6fb] flex items-center justify-center"
-                >
-                  <Mail className="w-4 h-4" />
-                  <span className="sr-only">Email</span>
-                </a>
-              </div>
-            </div>
-          </Motion.div>
-        </section>
-      </>
-    )
-  }
-
   return (
     <>
       <SEO
@@ -289,20 +157,11 @@ export default function Home() {
         style={space ? { minHeight: `${space}px` } : undefined}
         className="relative flex items-center justify-center"
       >
-        <Motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 }}
-          className="home-float-card relative mx-auto w-full max-w-5xl rounded-[30px] p-4 sm:p-8 md:p-10"
-        >
+        <div className={`${t.card} relative mx-auto w-full max-w-5xl rounded-[30px] p-4 sm:p-8 md:p-10`}>
           <div className="flex flex-wrap items-center gap-3">
-            <Link
-              to="/"
-              aria-label="Home"
-              className="inline-flex h-10 px-1 items-center justify-center"
-            >
+            <Link to="/" aria-label="Home" className="inline-flex h-10 px-1 items-center justify-center">
               <img
-                src="/logo-yh.png"
+                src={t.logo}
                 alt="Yassine Hadry"
                 width={36}
                 height={31}
@@ -313,19 +172,16 @@ export default function Home() {
             </Link>
 
             <nav className="ml-auto flex flex-wrap items-center justify-end gap-3 text-[13px] sm:text-sm">
-              <Link
-                to="/resources"
-                className="text-[#2f4952] hover:text-[#1f3b45]"
-              >
+              <Link to="/resources" className={t.navLink}>
                 Resources
               </Link>
               <button
                 onClick={onToggleTheme}
-                className="h-8 w-8 text-[#355766] hover:text-[#1f3b45] flex items-center justify-center"
-                aria-label="Switch to dark mode"
-                title="Dark mode"
+                className={t.themeBtn}
+                aria-label={t.themeBtnLabel}
+                title={t.themeBtnTitle}
               >
-                <Moon className="h-4 w-4" />
+                <t.ThemeIcon className="h-4 w-4" />
               </button>
             </nav>
           </div>
@@ -339,63 +195,57 @@ export default function Home() {
               loading="eager"
               fetchPriority="high"
               decoding="async"
-              className="h-32 w-32 sm:h-36 sm:w-36 rounded-full object-cover border-4 border-[#f4f6f3] shadow-[0_8px_28px_rgba(36,58,67,0.16)]"
+              className={`h-32 w-32 sm:h-36 sm:w-36 rounded-full object-cover border-4 ${t.avatarBorder}`}
             />
 
-            <h1 className="mt-4 text-3xl sm:text-4xl font-semibold tracking-tight text-[#1f2f35]">
+            <h1 className={`mt-4 text-3xl sm:text-4xl font-semibold tracking-tight ${t.heading}`}>
               {profileData.name}
             </h1>
-            <p className="mt-1 text-base sm:text-lg text-[#496169]">{profileData.headline}</p>
+            <p className={`mt-1 text-base sm:text-lg ${t.subheading}`}>{profileData.headline}</p>
 
-            <p className="mt-4 mx-auto max-w-2xl leading-relaxed text-[#4b5e66]">{profileData.blurb}</p>
+            <p className={`mt-4 mx-auto max-w-2xl leading-relaxed ${t.blurb}`}>
+              {profileData.blurb}
+            </p>
 
             <div className="mt-6 flex flex-wrap justify-center gap-3">
               <a
                 href={profileData.calendlyUrl}
                 target="_blank"
                 rel="noreferrer"
-                className={lightPrimaryButton}
+                className={t.primaryBtn}
               >
                 Let&apos;s Talk
               </a>
 
-              <Link to="/blog" className={lightSecondaryButton}>
+              <Link to="/blog" className={t.secondaryBtn}>
                 Blog
               </Link>
 
-              <Link to="/projects" className={lightSecondaryButton}>
+              <Link to="/projects" className={t.secondaryBtn}>
                 Projects
               </Link>
 
-              <InfoDialog
-                label="My Career"
-                title="Career"
-                triggerClassName={lightSecondaryButton}
-              >
+              <InfoDialog label="My Career" title="Career" triggerClassName={t.secondaryBtn}>
                 <Timeline items={experience} />
               </InfoDialog>
 
-              <InfoDialog
-                label="My Education"
-                title="Education"
-                triggerClassName={lightSecondaryButton}
-              >
+              <InfoDialog label="My Education" title="Education" triggerClassName={t.secondaryBtn}>
                 <Timeline items={education} />
               </InfoDialog>
 
-              <InfoDialog label="My Skills" title="Skills" triggerClassName={lightSecondaryButton}>
+              <InfoDialog label="My Skills" title="Skills" triggerClassName={t.secondaryBtn}>
                 <SkillCategoriesPanel isDark={isDark} />
               </InfoDialog>
             </div>
 
-            <div className="mt-6 flex items-center justify-center gap-4 text-[#546a72]">
+            <div className={`mt-6 flex items-center justify-center gap-4 ${t.socialGroup}`}>
               <a
                 href={profileData.social.github}
                 target="_blank"
                 rel="noreferrer"
                 aria-label="GitHub"
                 title="GitHub"
-                className="h-9 w-9 hover:text-[#314d59] flex items-center justify-center"
+                className={t.socialHover}
               >
                 <Github className="w-4 h-4" />
                 <span className="sr-only">GitHub</span>
@@ -406,7 +256,7 @@ export default function Home() {
                 rel="noreferrer"
                 aria-label="LinkedIn"
                 title="LinkedIn"
-                className="h-9 w-9 hover:text-[#314d59] flex items-center justify-center"
+                className={t.socialHover}
               >
                 <Linkedin className="w-4 h-4" />
                 <span className="sr-only">LinkedIn</span>
@@ -417,7 +267,7 @@ export default function Home() {
                 rel="noreferrer"
                 aria-label="X"
                 title="X"
-                className="h-9 w-9 hover:text-[#314d59] flex items-center justify-center"
+                className={t.socialHover}
               >
                 <BrandXIcon className="w-4 h-4" />
                 <span className="sr-only">X</span>
@@ -426,14 +276,14 @@ export default function Home() {
                 href={profileData.social.email}
                 aria-label="Email"
                 title="Email"
-                className="h-9 w-9 hover:text-[#314d59] flex items-center justify-center"
+                className={t.socialHover}
               >
                 <Mail className="w-4 h-4" />
                 <span className="sr-only">Email</span>
               </a>
             </div>
           </div>
-        </Motion.div>
+        </div>
       </section>
     </>
   )

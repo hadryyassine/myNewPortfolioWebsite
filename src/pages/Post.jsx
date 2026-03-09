@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { useParams } from 'react-router-dom'
+import ErrorBoundary from '../components/ErrorBoundary'
 import MDXProvider from '../components/MDXProvider'
 import { posts } from '../blog/posts'
 import SEO from '../components/SEO'
@@ -114,7 +115,15 @@ export default function Post() {
                 ))}
               </div>
             </header>
-            <MDXProvider>{MDX ? <MDX /> : <PostBodyPlaceholder />}</MDXProvider>
+            <ErrorBoundary
+              fallback={
+                <div className="py-8 text-center text-neutral-500">
+                  <p>This post could not be rendered.</p>
+                </div>
+              }
+            >
+              <MDXProvider>{MDX ? <MDX /> : <PostBodyPlaceholder />}</MDXProvider>
+            </ErrorBoundary>
           </article>
         </div>
       </section>

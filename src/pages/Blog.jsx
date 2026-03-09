@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import { motion as Motion, useReducedMotion } from 'framer-motion'
 import { CornerUpLeft } from 'lucide-react'
 import { Link, useOutletContext, useSearchParams } from 'react-router-dom'
 import { allCategories, posts } from '../blog/posts'
@@ -26,7 +25,6 @@ function formatBlogDate(dateInput) {
 export default function Blog() {
   const outletContext = useOutletContext() || {}
   const isDark = outletContext.isDark || false
-  const shouldReduceMotion = useReducedMotion()
   const [params, setParams] = useSearchParams()
   const q = params.get('q') || ''
   const selected = params.getAll('cat')
@@ -52,29 +50,6 @@ export default function Blog() {
     })
   }, [q, selected])
 
-  const listAnimation = shouldReduceMotion
-    ? { hidden: {}, show: {} }
-    : {
-        hidden: {},
-        show: {
-          transition: {
-            staggerChildren: 0.04,
-            delayChildren: 0.03,
-          },
-        },
-      }
-
-  const cardAnimation = shouldReduceMotion
-    ? { hidden: { opacity: 1 }, show: { opacity: 1 } }
-    : {
-        hidden: { opacity: 0, y: 10 },
-        show: {
-          opacity: 1,
-          y: 0,
-          transition: { duration: 0.28, ease: [0.22, 1, 0.36, 1] },
-        },
-      }
-
   return (
     <>
       <SEO
@@ -91,11 +66,10 @@ export default function Blog() {
         }}
       />
 
-      <Motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, ease: 'easeOut' }}>
-        <section
-          style={space ? { minHeight: `${space}px` } : undefined}
-          className="flex items-start py-4 sm:py-6"
-        >
+      <section
+        style={space ? { minHeight: `${space}px` } : undefined}
+        className="flex items-start py-4 sm:py-6"
+      >
           <div className="w-full">
           <div className="mb-5 flex flex-wrap items-center gap-2 sm:gap-3">
             <h1
@@ -200,23 +174,14 @@ export default function Blog() {
           </div>
 
           {filtered.length > 0 ? (
-            <Motion.ul
-              layout
-              variants={listAnimation}
-              initial={shouldReduceMotion ? false : 'hidden'}
-              animate="show"
-              className="mt-6 grid gap-4"
-            >
+            <ul className="mt-6 grid gap-4">
               {filtered.map((p) => (
-                <Motion.li
+                <li
                   key={p.slug}
-                  layout="position"
-                  variants={cardAnimation}
-                  whileHover={shouldReduceMotion ? undefined : { y: -3 }}
-                  className={`transform-gpu will-change-transform rounded-2xl p-5 transition-[box-shadow] duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] ${
+                  className={`rounded-2xl p-5 ${
                     isDark
-                      ? 'bg-[#15212a]/88 shadow-[0_8px_24px_rgba(0,0,0,0.2)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.28)]'
-                      : 'bg-[#f5f8fa] shadow-[0_10px_26px_rgba(53,80,90,0.12)] hover:shadow-[0_14px_30px_rgba(53,80,90,0.17)]'
+                      ? 'bg-[#15212a]/88 shadow-[0_8px_24px_rgba(0,0,0,0.2)]'
+                      : 'bg-[#f5f8fa] shadow-[0_10px_26px_rgba(53,80,90,0.12)]'
                   }`}
                 >
                   <div
@@ -246,9 +211,9 @@ export default function Blog() {
                       </span>
                     ))}
                   </div>
-                </Motion.li>
+                </li>
               ))}
-            </Motion.ul>
+            </ul>
           ) : (
             <div
               className={`mt-8 rounded-2xl p-8 text-center ${
@@ -278,8 +243,7 @@ export default function Blog() {
             </div>
           )}
           </div>
-        </section>
-      </Motion.div>
+      </section>
     </>
   )
 }
