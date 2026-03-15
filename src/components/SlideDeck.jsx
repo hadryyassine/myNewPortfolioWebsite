@@ -85,10 +85,7 @@ export default function SlideDeck({
               <span className="rounded-full border border-[#cad8e0] bg-white/85 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#526972] dark:border-[#2f4451] dark:bg-[#152731]/85 dark:text-[#a3bac7]">
                 Interactive deck
               </span>
-              <p className="mt-4 max-w-lg text-lg font-semibold text-[#22343d] dark:text-[#d9e6ee]">
-                Open the slide deck only when you want it, so the article feels faster on first load.
-              </p>
-              <p className="mt-2 max-w-xl text-sm text-[#5e7680] dark:text-[#8ca3af]">
+              <p className="mt-4 max-w-xl text-sm text-[#5e7680] dark:text-[#8ca3af]">
                 The next slide is warmed up as you browse to keep navigation responsive.
               </p>
               <span className="mt-5 inline-flex items-center rounded-full bg-[#6f9ca2] px-4 py-2 text-sm font-medium text-white shadow-[0_10px_24px_rgba(53,80,90,0.16)] transition-transform duration-200 ease-out group-hover:-translate-y-0.5">

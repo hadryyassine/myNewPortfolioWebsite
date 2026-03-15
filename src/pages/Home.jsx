@@ -81,17 +81,21 @@ function InfoDialog({ label, title, triggerClassName, children }) {
       </Dialog.Trigger>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-[120] bg-black/50" />
-        <Dialog.Content className="fixed z-[121] left-1/2 top-1/2 w-[92vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-950 p-6 outline-none">
-          <div className="flex items-center justify-between">
-            <Dialog.Title className="text-lg font-semibold">{title}</Dialog.Title>
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-[121] flex w-[92vw] max-w-2xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-2xl border border-[var(--color-border-secondary)] bg-white outline-none dark:bg-neutral-950">
+          <div className="flex items-center justify-between border-b-[0.5px] border-b-[var(--color-border-tertiary)] px-7 pt-6 pb-5">
+            <Dialog.Title className="text-[17px] font-medium text-[var(--color-text-primary)]">
+              {title}
+            </Dialog.Title>
             <Dialog.Close
-              className="p-1 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-900"
+              className="rounded-md p-1 text-[var(--color-text-secondary)] transition-colors hover:bg-[var(--color-background-secondary)] hover:text-[var(--color-text-primary)]"
               aria-label="Close"
             >
               <X className="w-5 h-5" />
             </Dialog.Close>
           </div>
-          <div className="mt-4">{children}</div>
+          <div className="max-h-[min(70vh,calc(100vh-160px))] overflow-y-auto px-7 pt-7 pb-8">
+            {children}
+          </div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>

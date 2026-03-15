@@ -12,6 +12,12 @@
   --loader-bg: #e7f0f4;
   --loader-fg: #27444d;
   --loader-track: rgba(77, 111, 124, 0.2);
+  --color-border-secondary: #d7dfe4;
+  --color-border-tertiary: #e8edf0;
+  --color-background-secondary: #f4f7f8;
+  --color-text-primary: #22343d;
+  --color-text-secondary: #5e7680;
+  --color-text-tertiary: #889da7;
 }
 
 .dark {
@@ -22,6 +28,12 @@
   --loader-bg: #121b24;
   --loader-fg: #c8d9e3;
   --loader-track: rgba(156, 185, 201, 0.24);
+  --color-border-secondary: #35515f;
+  --color-border-tertiary: #273a45;
+  --color-background-secondary: #152731;
+  --color-text-primary: #d9e6ee;
+  --color-text-secondary: #9db1bc;
+  --color-text-tertiary: #7f939e;
 }
 
 .site-loader-screen {
